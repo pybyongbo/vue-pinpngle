@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <HelloWorld msg="请选择一张图片"/>
   </div>
 </template>
 
@@ -17,12 +16,14 @@ export default {
 </script>
 
 <style>
+body,html{padding:0;margin:0}
+html{font-size:16px;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}a,button,input,textarea{-webkit-tap-highlight-color:transparent}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  height:100vh;
+  overflow: hidden;
 }
 </style>

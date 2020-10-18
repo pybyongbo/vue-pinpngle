@@ -4,8 +4,25 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+        (window.onresize = window.__setFontSize__  = function(){
+          document.documentElement.style.fontSize = Math.min(750, Math.max(document.documentElement.clientWidth, 320) ) / 375 * 14 + 'px'}
+          )()
+        </script>
+        <script>
+        //     window.onload = function() {
+        //     let screenHeight = 0
+        //     if (window.innerHeight){
+        //         screenHeight = window.innerHeight;
+        //     } else if ((document.body) && (document.body.clientHeight)){
+        //         screenHeight = document.body.clientHeight;
+        //     }
+        //     document.body.style.height = screenHeight + 'px'
+        //   }
+        </script>
   </head>
   <body>
     <noscript>
