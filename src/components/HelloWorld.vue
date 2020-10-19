@@ -19,14 +19,16 @@
             alt=""
           >
         </div>
-        <div class="img-wrap">
-          <div class="file-wrap">
+        <div class="img-wrap" v-if="!uploadimg">
+          <div class="file-wrap" ref="filewrap">
             <input
               type="file"
               id="file"
+              @change="onFileChange"
             >
           </div>
         </div>
+ 
         <div
           class="btn"
           id="start"
@@ -81,7 +83,10 @@
     </div>
 
     <div class="preview-page">
-        <img :src="canvasUrl"  alt="">
+      <img
+        :src="canvasUrl"
+        alt=""
+      >
     </div>
 
   </div>
@@ -108,6 +113,7 @@ export default {
       curIndex: 0,
       curposArr: [],
       clickStartBtn: false,
+      uploadimg:"",
       selectedImg: "",
       boxArr: new Array(9).fill(1).map((item, index) => {
         return index;
@@ -133,12 +139,34 @@ export default {
       timer: null,
       //   step: 0,
       issuccess: false,
-      canvasUrl:""
+      canvasUrl: ""
     };
   },
   methods: {
     getItem(index) {
       this.activeClass = index;
+    },
+    onFileChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length)
+        return;
+      this.createImage(files[0]);
+    },
+    createImage(file) {
+    //   var image = new Image();
+      var reader = new FileReader();
+      var vm = this;
+
+      reader.onload = (e) => {
+        vm.uploadimg = e.target.result;
+        // console.log(123,e.target.result)
+        // this.$refs.filewrap.style.backgroundImage = 'url(' + e.target.result + ')';
+
+        this.imgArr.push({
+            url:e.target.result
+        })
+      };
+      reader.readAsDataURL(file);
     },
     startGame(picIndex) {
       if (this.activeClass == -1) {
@@ -254,96 +282,102 @@ export default {
     },
     // 生成战绩海报
     generateImg() {
-     var canvas = document.createElement("canvas");
-        
-        if(canvas.getContext) {
-            var winW = window.innerWidth,
-                winH = window.innerHeight,
-            ctx = canvas.getContext('2d');
-            canvas.width = winW;
-            canvas.height = winH;
+      var canvas = document.createElement("canvas");
 
-            // 绘制背景
-            // ctx.fillStyle = '#06c';
-            var linear = ctx.createLinearGradient(0, 0, 0, winH);
-            linear.addColorStop(0, '#a1c4fd');
-            linear.addColorStop(1, '#c2e9fb');
-            ctx.fillStyle = linear;
-            ctx.fillRect(0, 0, winW, winH);
-            ctx.fill();
+      if (canvas.getContext) {
+        var winW = window.innerWidth,
+          winH = window.innerHeight,
+          ctx = canvas.getContext("2d");
+        canvas.width = winW;
+        canvas.height = winH;
 
-            // 绘制顶部图像
-            var imgH = 0;
-            var that = this;
+        // 绘制背景
+        // ctx.fillStyle = '#06c';
+        var linear = ctx.createLinearGradient(0, 0, 0, winH);
+        linear.addColorStop(0, "#a1c4fd");
+        linear.addColorStop(1, "#c2e9fb");
+        ctx.fillStyle = linear;
+        ctx.fillRect(0, 0, winW, winH);
+        ctx.fill();
+
+        // 绘制顶部图像
+        var imgH = 0;
+        var that = this;
+        var img = new Image();
+        img.src = that.selectedImg;
+        img.onload = function() {
+          // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
+          imgH = (0.6 * winW * this.height) / this.width;
+          ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
+          console.log("this", this);
+          // drawText();
+          // ctx.save();
+          ctx.fillStyle = "#fff";
+          ctx.font = 20 + "px Helvetica";
+          ctx.textBaseline = "hanging";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
+            winW / 2,
+            0.15 * winH + imgH
+          );
+          // ctx.restore();
+          // drawTip();
+
+          // ctx.save();
+          ctx.fillStyle = "#000";
+          ctx.font = 14 + "px Helvetica";
+          ctx.textBaseline = "hanging";
+          ctx.textAlign = "center";
+          ctx.fillText("关注下方二维码开始游戏", winW / 2, 0.25 * winH + imgH);
+          // ctx.restore();
+          // drawCode();
+
+          var imgCode = new Image();
+          imgCode.src = require("../assets/images/logo.png");
+          imgCode.onload = function() {
+            ctx.drawImage(
+              imgCode,
+              0.35 * winW,
+              0.3 * winH + imgH,
+              0.3 * winW,
+              0.3 * winW
+            );
+
+            // 生成预览图
             var img = new Image();
-            img.src = that.selectedImg;
-            img.onload = function(){
-                // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
-                imgH = .6*winW*this.height/this.width;
-                ctx.drawImage(img, .2*winW, .1*winH, .6*winW, imgH);
-                console.log('this',this);
-                // drawText();
-                // ctx.save();
-                ctx.fillStyle = '#fff';
-                ctx.font = 20 + 'px Helvetica';
-                ctx.textBaseline = 'hanging';
-                ctx.textAlign = 'center';
-                ctx.fillText('我只用了' + (180 -that.dealtime) + 's,' + '快来挑战！', winW/2, .15*winH + imgH);
-                // ctx.restore();
-                // drawTip();
+            img.src = that.convertCanvasToImage(canvas, 1).src;
+            img.className = "previewImg";
+            img.onload = function() {
+              console.log("this", this.src);
+              // $('.preview-page')[0].appendChild(this);
 
-                // ctx.save();
-                ctx.fillStyle = '#000';
-                ctx.font = 14 + 'px Helvetica';
-                ctx.textBaseline = 'hanging';
-                ctx.textAlign = 'center';
-                ctx.fillText('关注下方二维码开始游戏', winW/2, .25*winH + imgH);
-                // ctx.restore();
-                // drawCode();
+              that.canvasUrl = this.src;
+              that.startDx = that.startDx - 100;
+              that.transformX(that.$refs.wrap, that.startDx + "vw");
+            };
+            // this.canvasUrl = this.src;
+          };
+        };
 
-                var imgCode = new Image();
-                imgCode.src = require('../assets/images/logo.png');
-                imgCode.onload = function(){
-                    ctx.drawImage(imgCode, .35*winW, .3*winH + imgH, .3*winW, .3*winW);
-    
-                    // 生成预览图
-                    var img = new Image();
-                    img.src= that.convertCanvasToImage(canvas, 1).src;
-                    img.className = 'previewImg';
-                    img.onload = function(){
-                        console.log('this',this.src);
-                        // $('.preview-page')[0].appendChild(this);
+        // 绘制文字
+        // function drawText() {
 
-                        that.canvasUrl = this.src;
-                        that.startDx = that.startDx - 100;
-                        that.transformX(that.$refs.wrap, that.startDx + 'vw');
-                    }
-                    // this.canvasUrl = this.src;
-                }
-            }
+        // }
 
-            // 绘制文字
-            // function drawText() {
-               
-            // }
+        // 绘制提示文字
+        // function drawTip() {
 
-            // 绘制提示文字
-            // function drawTip() {
-                
-            // }
+        // }
 
+        // 绘制二维码
+        // function drawCode() {
 
-            // 绘制二维码
-            // function drawCode() {
-               
-            // }
-            
+        // }
       } else {
         alert("浏览器不支持canvas！");
       }
     },
-
-    
 
     // 生成n维矩阵
     generateMatrix(n, dx, dy) {
