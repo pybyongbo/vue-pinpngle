@@ -160,8 +160,6 @@ export default {
       reader.onload = (e) => {
         vm.uploadimg = e.target.result;
         // console.log(123,e.target.result)
-        // this.$refs.filewrap.style.backgroundImage = 'url(' + e.target.result + ')';
-
         this.imgArr.push({
             url:e.target.result
         })
