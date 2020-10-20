@@ -82,28 +82,35 @@
 
     </div>
 
-    <div class="preview-page">
+    <div class="preview-page last-page">
       <img
         :src="canvasUrl"
-        alt=""
+        alt="图片"
       >
+      <div
+        class="btn play-again"
+        @click="reStart()"
+      >重新再来</div>
+      <div
+        class="btn share-other"
+        @click="isVisible=true"
+      >我要分享</div>
     </div>
+    <div
+        class="share-bg"
+        v-if="isVisible"
+        @click="isVisible=false"/>
 
   </div>
 </template>
 
 <script>
-// import Cutdown from "./Cutdown.vue";
+
 export default {
   name: "HelloWorld",
   props: {
     msg: String
   },
-  created() {},
-  mounted() {},
-  //   components: {
-  //     Cutdown
-  //   },
   data() {
     return {
       startDx: 0, // 初始位移，用于返回上一页
@@ -139,7 +146,8 @@ export default {
       timer: null,
       //   step: 0,
       issuccess: false,
-      canvasUrl: ""
+      canvasUrl: "",
+      isVisible:false
     };
   },
   methods: {
@@ -188,7 +196,7 @@ export default {
     changePositon(e, item) {
       //点击小图片切换位置方法
       let reg = /active/g;
-      console.log(e, item);
+      // console.log(e, item);
       this.boxArractivelass = item;
       let pieces = document.querySelectorAll(".piece");
       if (!this.wall) {
@@ -277,6 +285,10 @@ export default {
       this.timer = setInterval(this.timeStart, 1000);
       //    this.$refs.child.initTime();
     },
+    reStart(){
+      this.startDx = this.startDx+300;
+      this.transformX(this.$refs.wrap, this.startDx + "vw");
+    },
     // 生成战绩海报
     generateImg() {
       var canvas = document.createElement("canvas");
@@ -306,14 +318,13 @@ export default {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
           imgH = (0.5 * winW * this.height) / this.width;
           ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
-          console.log("this", this);
           // drawText();
           // ctx.save();
           ctx.fillStyle = "#fff";
           ctx.font = 20 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
-          ctx.moveTo(-10,10);
+          ctx.moveTo(10,10);
           ctx.fillText(
             "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
             winW / 2,
@@ -348,14 +359,11 @@ export default {
             img.src = that.convertCanvasToImage(canvas, 1).src;
             img.className = "previewImg";
             img.onload = function() {
-              console.log("this", this.src);
-              // $('.preview-page')[0].appendChild(this);
 
               that.canvasUrl = this.src;
               that.startDx = that.startDx - 100;
               that.transformX(that.$refs.wrap, that.startDx + "vw");
             };
-            // this.canvasUrl = this.src;
           };
         };
 
@@ -626,5 +634,42 @@ div {
   margin-bottom: 30px;
   color: #fff;
   font-size: 24px;
+}
+.last-page{
+    position: relative;
+}
+
+.last-page img{
+        position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.play-again{
+    position: absolute;
+    bottom: 10px;
+    left: 5px;
+    z-index: 10;
+    width: 48%;
+}
+
+.share-other{
+    position: absolute;
+    bottom: 10px;
+    right: 5px;
+    z-index: 10;
+    width: 48%;
+}
+
+.share-bg{
+  position: fixed;
+  top: 0;
+  width: 0;
+  width: 100%;
+  height: 100%;
+  background:url('../assets/images/share.png') no-repeat rgba(0, 0, 0, 0.8);
+  background-position: top right;
+  z-index:11;
+  /* background-size:75%; */
 }
 </style>
