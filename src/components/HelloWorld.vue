@@ -304,7 +304,7 @@ export default {
         img.src = that.selectedImg;
         img.onload = function() {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
-          imgH = (0.6 * winW * this.height) / this.width;
+          imgH = (0.5 * winW * this.height) / this.width;
           ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
           console.log("this", this);
           // drawText();
@@ -313,6 +313,7 @@ export default {
           ctx.font = 20 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
+          ctx.moveTo(-10,10);
           ctx.fillText(
             "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
             winW / 2,
@@ -326,12 +327,13 @@ export default {
           ctx.font = 14 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
+          ctx.moveTo(-30,10);
           ctx.fillText("关注下方二维码开始游戏", winW / 2, 0.25 * winH + imgH);
           // ctx.restore();
           // drawCode();
 
           var imgCode = new Image();
-          imgCode.src = require("../assets/images/logo.png");
+          imgCode.src = require("../assets/images/code.jpg");
           imgCode.onload = function() {
             ctx.drawImage(
               imgCode,
@@ -357,20 +359,7 @@ export default {
           };
         };
 
-        // 绘制文字
-        // function drawText() {
-
-        // }
-
-        // 绘制提示文字
-        // function drawTip() {
-
-        // }
-
-        // 绘制二维码
-        // function drawCode() {
-
-        // }
+ 
       } else {
         alert("浏览器不支持canvas！");
       }
