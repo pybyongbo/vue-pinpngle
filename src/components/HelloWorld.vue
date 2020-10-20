@@ -24,6 +24,8 @@
             <input
               type="file"
               id="file"
+              @change="addImg" 
+              ref="inputer"
             >
           </div>
         </div>
@@ -220,7 +222,6 @@ export default {
 
     timeStart() {
       this.dealtime--;
-      // $('#time').html(dealtime);
       if (this.dealtime < 1) {
         clearInterval(this.timer);
         alert("挑战失败，请返回重新开始");
