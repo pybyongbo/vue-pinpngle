@@ -144,7 +144,6 @@ export default {
       prevEl: null, // 上一个元素,
       dealtime: 180,
       timer: null,
-      //   step: 0,
       issuccess: false,
       canvasUrl: "",
       isVisible:false
@@ -281,6 +280,7 @@ export default {
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
       this.startDx = -100;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
+      this.resetTime();
       this.dealtime = 180;
       this.timer = setInterval(this.timeStart, 1000);
       //    this.$refs.child.initTime();
@@ -288,6 +288,9 @@ export default {
     reStart(){
       this.startDx = this.startDx+300;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
+      this.resetTime();
+      // this.dealtime = 180;
+      // this.timer = setInterval(this.timeStart, 1000);
     },
     // 生成战绩海报
     generateImg() {
@@ -317,7 +320,8 @@ export default {
         img.onload = function() {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
           imgH = (0.5 * winW * this.height) / this.width;
-          ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
+          // ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
+          ctx.drawImage(img, 0.2 * winW, 20, 0.6 * winW, imgH);
           // drawText();
           // ctx.save();
           ctx.fillStyle = "#fff";
@@ -328,7 +332,9 @@ export default {
           ctx.fillText(
             "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
             winW / 2,
-            0.15 * winH + imgH
+            0.1 * winH + imgH
+            // 80+imgH
+            // 100
           );
           // ctx.restore();
           // drawTip();
@@ -339,7 +345,7 @@ export default {
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
           ctx.moveTo(-30,10);
-          ctx.fillText("关注下方二维码开始游戏", winW / 2, 0.25 * winH + imgH);
+          ctx.fillText("关注下方二维码开始游戏", winW / 2, 0.18 * winH + imgH);
           // ctx.restore();
           // drawCode();
 
@@ -349,7 +355,7 @@ export default {
             ctx.drawImage(
               imgCode,
               0.35 * winW,
-              0.3 * winH + imgH,
+              0.25 * winH + imgH,
               0.3 * winW,
               0.3 * winW
             );
