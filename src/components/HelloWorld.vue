@@ -1,111 +1,53 @@
 <template>
   <!-- :style="{transform: `translateX(${clickStartBtn?-100:0}vw)`}" -->
-  <div
-    class="wrap"
-    ref="wrap"
-  >
+  <div class="wrap" ref="wrap">
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="album-list">
-        <div
-          class="img-wrap"
-          v-for="(item,index) in imgArr"
-          :class="activeClass == index ? 'active':''"
-          :key="index"
-          @click="getItem(index)"
-        >
-          <img
-            :src="item.url"
-            alt=""
-          >
+        <div class="img-wrap" v-for="(item,index) in imgArr" :class="activeClass == index ? 'active':''" :key="index" @click="getItem(index)">
+          <img :src="item.url" alt="">
         </div>
         <div class="img-wrap" v-if="!uploadimg">
           <div class="file-wrap" ref="filewrap">
-            <input
-              type="file"
-              id="file"
-              @change="onFileChange"
-            >
+            <input type="file" id="file" @change="onFileChange">
           </div>
         </div>
- 
-        <div
-          class="btn"
-          id="start"
-          @click="startGame(activeClass)"
-        >开始游戏</div>
+
+        <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
       </div>
     </div>
 
     <div class="play-page">
       <div class="deloy">倒计时：<span id="time">{{dealtime}}</span></div>
       <!-- <Cutdown ref="child" :success="issuccess" @overtime="overtime"></Cutdown> -->
-      <div
-        class="play-area"
-        id="playArea"
-      >
+      <div class="play-area" id="playArea">
         <!-- :style="{backgroundImage:'url('+selectedImg+')',transform: `translate(${matrixArr[item].x}vw, ${matrixArr[item].y}vh)`}" -->
-        <div
-          v-for="item in boxArr"
-          :index="item"
-          :key="item"
-          :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]"
-          :style="{backgroundImage:'url('+selectedImg+')'}"
-          @click="changePositon($event,item)"
-          :ref="'piece' +item"
-        ></div>
+        <div v-for="item in boxArr" :index="item" :key="item" :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" :style="{backgroundImage:'url('+selectedImg+')'}" @click="changePositon($event,item)" :ref="'piece' +item"></div>
       </div>
-      <div
-        class="btn"
-        id="change"
-        @click="reOrder()"
-      >重新排序</div>
-      <div
-        class="btn"
-        id="back"
-        @click="goBack()"
-      >返回</div>
+      <div class="btn" id="change" @click="reOrder()">重新排序</div>
+      <div class="btn" id="back" @click="goBack()">返回</div>
     </div>
 
     <div class="result-page">
 
       <div class="success-text">恭喜闯关成功~!</div>
       <div class="total-time">用时: <span id="use_time">{{180-dealtime}}</span>s</div>
-      <div
-        class="btn"
-        @click="generateImg"
-      >生成战绩海报</div>
-      <div
-        class="btn"
-        @click="onceAgain()"
-      >再来一次</div>
+      <div class="btn" @click="generateImg">生成战绩海报</div>
+      <div class="btn" @click="onceAgain()">再来一次</div>
 
     </div>
 
     <div class="preview-page last-page">
-      <img
-        :src="canvasUrl"
-        alt="图片"
-      >
-      <div
-        class="btn play-again"
-        @click="reStart()"
-      >重新再来</div>
-      <div
-        class="btn share-other"
-        @click="isVisible=true"
-      >我要分享</div>
+      <img :src="canvasUrl" alt="图片">
+      <div class="btn play-again" @click="reStart()">重新再来</div>
+      <div class="btn share-other" @click="isVisible=true">我要分享</div>
     </div>
-    <div
-        class="share-bg"
-        v-if="isVisible"
-        @click="isVisible=false"/>
+    <div class="share-bg" v-if="isVisible" @click="isVisible=false" />
 
   </div>
 </template>
 
 <script>
-
 export default {
   name: "HelloWorld",
   props: {
@@ -120,7 +62,7 @@ export default {
       curIndex: 0,
       curposArr: [],
       clickStartBtn: false,
-      uploadimg:"",
+      uploadimg: "",
       selectedImg: "",
       boxArr: new Array(9).fill(1).map((item, index) => {
         return index;
@@ -130,14 +72,22 @@ export default {
       matrixArr: this.upsetArr(this.generateMatrix(3, 28, 20)),
       //  matrixArr:this.shuffle(this.pieces, this.pool),
       imgArr: [
-        { url: require("../assets/images/timg2.jpeg") },
-        { url: require("../assets/images/timg3.jpeg") },
-        { url: require("../assets/images/timg.jpeg") },
-        { url: require("../assets/images/caixushen.jpg") },
-        { url: require("../assets/images/yang.jpeg") },
-        { url: require("../assets/images/re.jpeg") },
-        { url: require("../assets/images/timg4.jpeg") },
-        { url: require("../assets/images/timg6.jpeg") }
+        // { url: require("../assets/images/timg2.jpeg") },
+        // { url: require("../assets/images/timg3.jpeg") },
+        // { url: require("../assets/images/timg.jpeg") },
+        // { url: require("../assets/images/caixushen.jpg") },
+        // { url: require("../assets/images/yang.jpeg") },
+        // { url: require("../assets/images/re.jpeg") },
+        // { url: require("../assets/images/timg4.jpeg") },
+        // { url: require("../assets/images/timg6.jpeg") }
+        { url: require("../assets/images/2020-10-22-pic2.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic47.jpeg")},
+        { url: require("../assets/images/2020-10-22-pic3.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic5.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic4.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic1.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic7.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic8.jpeg") }
       ],
 
       wall: 0,
@@ -146,7 +96,7 @@ export default {
       timer: null,
       issuccess: false,
       canvasUrl: "",
-      isVisible:false
+      isVisible: false
     };
   },
   methods: {
@@ -155,21 +105,20 @@ export default {
     },
     onFileChange(e) {
       var files = e.target.files || e.dataTransfer.files;
-      if (!files.length)
-        return;
+      if (!files.length) return;
       this.createImage(files[0]);
     },
     createImage(file) {
-    //   var image = new Image();
+      //   var image = new Image();
       var reader = new FileReader();
       var vm = this;
 
-      reader.onload = (e) => {
+      reader.onload = e => {
         vm.uploadimg = e.target.result;
         // console.log(123,e.target.result)
         this.imgArr.push({
-            url:e.target.result
-        })
+          url: e.target.result
+        });
       };
       reader.readAsDataURL(file);
     },
@@ -285,8 +234,8 @@ export default {
       this.timer = setInterval(this.timeStart, 1000);
       //    this.$refs.child.initTime();
     },
-    reStart(){
-      this.startDx = this.startDx+300;
+    reStart() {
+      this.startDx = this.startDx + 300;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
       this.resetTime();
       // this.dealtime = 180;
@@ -317,6 +266,7 @@ export default {
         var that = this;
         var img = new Image();
         img.src = that.selectedImg;
+        img.setAttribute("crossOrigin",'Anonymous')
         img.onload = function() {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
           imgH = (0.5 * winW * this.height) / this.width;
@@ -328,7 +278,7 @@ export default {
           ctx.font = 20 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
-          ctx.moveTo(10,10);
+          ctx.moveTo(10, 10);
           ctx.fillText(
             "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
             winW / 2,
@@ -344,7 +294,7 @@ export default {
           ctx.font = 14 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
-          ctx.moveTo(-30,10);
+          ctx.moveTo(-30, 10);
           ctx.fillText("关注下方二维码开始游戏", winW / 2, 0.18 * winH + imgH);
           // ctx.restore();
           // drawCode();
@@ -363,17 +313,15 @@ export default {
             // 生成预览图
             var img = new Image();
             img.src = that.convertCanvasToImage(canvas, 1).src;
+            img.setAttribute("crossOrigin",'Anonymous');
             img.className = "previewImg";
             img.onload = function() {
-
               that.canvasUrl = this.src;
               that.startDx = that.startDx - 100;
               that.transformX(that.$refs.wrap, that.startDx + "vw");
             };
           };
         };
-
- 
       } else {
         alert("浏览器不支持canvas！");
       }
@@ -397,17 +345,18 @@ export default {
       for (var i = 0, len = els.length; i < len; i++) {
         var el = els[i];
         el.setAttribute("index", i); // 将打乱后的数组索引缓存到元素中
-
         el.style.transform =
           "translate(" + arr[i].x + "vw," + arr[i].y + "vh" + ")";
       }
     },
-
+    // https://www.xiabingbao.com/post/javascript/js-random-array.html
     upsetArr(arr) {
       //   console.log("arr", JSON.stringify(arr));
+      // 方法1:
       return arr.sort(function() {
         return Math.random() > 0.5 ? -1 : 1;
       });
+
     },
     // 置换数组(对应索引的x,y值进行交换)
     swap(arr, indexA, indexB) {
@@ -421,9 +370,12 @@ export default {
       // [targetArr[0].y, targetArr[1].y] = [targetArr[1].y, targetArr[0].y];
 
       // return targetArr;
-      var cache = arr[indexA];
-      arr[indexA] = arr[indexB];
-      arr[indexB] = cache;
+      // var cache = arr[indexA];
+      // arr[indexA] = arr[indexB];
+      // arr[indexB] = cache;
+
+      // ES6的解耦交换方式： [arr[index], arr[n]] = [arr[n], arr[index]];
+      [arr[indexA],arr[indexB]] = [arr[indexB],arr[indexA]];
     },
 
     // 校验是否成功方法
@@ -641,41 +593,41 @@ div {
   color: #fff;
   font-size: 24px;
 }
-.last-page{
-    position: relative;
+.last-page {
+  position: relative;
 }
 
-.last-page img{
-        position: absolute;
-    left: 0;
-    top: 0;
+.last-page img {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
-.play-again{
-    position: absolute;
-    bottom: 10px;
-    left: 5px;
-    z-index: 10;
-    width: 48%;
+.play-again {
+  position: absolute;
+  bottom: 10px;
+  left: 5px;
+  z-index: 10;
+  width: 48%;
 }
 
-.share-other{
-    position: absolute;
-    bottom: 10px;
-    right: 5px;
-    z-index: 10;
-    width: 48%;
+.share-other {
+  position: absolute;
+  bottom: 10px;
+  right: 5px;
+  z-index: 10;
+  width: 48%;
 }
 
-.share-bg{
+.share-bg {
   position: fixed;
   top: 0;
   width: 0;
   width: 100%;
   height: 100%;
-  background:url('../assets/images/share.png') no-repeat rgba(0, 0, 0, 0.8);
+  background: url("../assets/images/share.png") no-repeat rgba(0, 0, 0, 0.8);
   background-position: top right;
-  z-index:11;
+  z-index: 11;
   /* background-size:75%; */
 }
 </style>
