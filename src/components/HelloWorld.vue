@@ -1,48 +1,112 @@
 <template>
   <!-- :style="{transform: `translateX(${clickStartBtn?-100:0}vw)`}" -->
-  <div class="wrap" ref="wrap">
+  <div
+    class="wrap"
+    ref="wrap"
+  >
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="album-list">
-        <div class="img-wrap" v-for="(item,index) in imgArr" :class="activeClass == index ? 'active':''" :key="index" @click="getItem(index)">
-          <img :src="item.url" alt="">
+        <div
+          class="img-wrap"
+          v-for="(item,index) in imgArr"
+          :class="activeClass == index ? 'active':''"
+          :key="index"
+          @click="getItem(index)"
+        >
+          <img
+            :src="item.url"
+            alt=""
+          >
         </div>
-        <div class="img-wrap" v-if="!uploadimg">
-          <div class="file-wrap" ref="filewrap">
-            <input type="file" id="file" @change="onFileChange">
+        <div
+          class="img-wrap"
+          v-if="!uploadimg"
+        >
+          <div
+            class="file-wrap"
+            ref="filewrap"
+          >
+            <input
+              type="file"
+              id="file"
+              @change="onFileChange"
+            >
           </div>
         </div>
 
-        <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
+        <div
+          class="btn"
+          id="start"
+          @click="startGame(activeClass)"
+        >开始游戏</div>
       </div>
     </div>
 
     <div class="play-page">
       <div class="deloy">倒计时：<span id="time">{{dealtime}}</span></div>
       <!-- <Cutdown ref="child" :success="issuccess" @overtime="overtime"></Cutdown> -->
-      <div class="play-area" id="playArea">
+      <div
+        class="play-area"
+        id="playArea"
+      >
         <!-- :style="{backgroundImage:'url('+selectedImg+')',transform: `translate(${matrixArr[item].x}vw, ${matrixArr[item].y}vh)`}" -->
-        <div v-for="item in boxArr" :index="item" :key="item" :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" :style="{backgroundImage:'url('+selectedImg+')'}" @click="changePositon($event,item)" :ref="'piece' +item"></div>
+        <div
+          v-for="item in boxArr"
+          :index="item"
+          :key="item"
+          :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]"
+          :style="{backgroundImage:'url('+selectedImg+')'}"
+          @click="changePositon($event,item)"
+          :ref="'piece' +item"
+        ></div>
       </div>
-      <div class="btn" id="change" @click="reOrder()">重新排序</div>
-      <div class="btn" id="back" @click="goBack()">返回</div>
+      <div
+        class="btn"
+        id="change"
+        @click="reOrder()"
+      >重新排序</div>
+      <div
+        class="btn"
+        id="back"
+        @click="goBack()"
+      >返回</div>
     </div>
 
     <div class="result-page">
 
       <div class="success-text">恭喜闯关成功~!</div>
       <div class="total-time">用时: <span id="use_time">{{180-dealtime}}</span>s</div>
-      <div class="btn" @click="generateImg">生成战绩海报</div>
-      <div class="btn" @click="onceAgain()">再来一次</div>
+      <div
+        class="btn"
+        @click="generateImg"
+      >生成战绩海报</div>
+      <div
+        class="btn"
+        @click="onceAgain()"
+      >再来一次</div>
 
     </div>
 
     <div class="preview-page last-page">
-      <img :src="canvasUrl" alt="图片">
-      <div class="btn play-again" @click="reStart()">重新再来</div>
-      <div class="btn share-other" @click="isVisible=true">我要分享</div>
+      <img
+        :src="canvasUrl"
+        alt="图片"
+      >
+      <div
+        class="btn play-again"
+        @click="reStart()"
+      >重新再来</div>
+      <div
+        class="btn share-other"
+        @click="isVisible=true"
+      >我要分享</div>
     </div>
-    <div class="share-bg" v-if="isVisible" @click="isVisible=false" />
+    <div
+      class="share-bg"
+      v-if="isVisible"
+      @click="isVisible=false"
+    />
 
   </div>
 </template>
@@ -81,7 +145,7 @@ export default {
         // { url: require("../assets/images/timg4.jpeg") },
         // { url: require("../assets/images/timg6.jpeg") }
         { url: require("../assets/images/2020-10-22-pic2.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic47.jpeg")},
+        { url: require("../assets/images/2020-10-22-pic47.jpeg") },
         { url: require("../assets/images/2020-10-22-pic3.jpeg") },
         { url: require("../assets/images/2020-10-22-pic5.jpeg") },
         { url: require("../assets/images/2020-10-22-pic4.jpeg") },
@@ -144,7 +208,9 @@ export default {
     changePositon(e, item) {
       //点击小图片切换位置方法
       let reg = /active/g;
-      // console.log(e, item);
+      //   console.log(item);
+      //   console.log(JSON.stringify(this.pool));
+
       this.boxArractivelass = item;
       let pieces = document.querySelectorAll(".piece");
       if (!this.wall) {
@@ -162,22 +228,35 @@ export default {
           curIndex = +e.target.getAttribute("index");
 
         // 置换数组
-        this.swap(this.pool, prevIndex, curIndex);
+
         // console.log("prevIndex", "curIndex", prevIndex, curIndex);
-        this.prevEl.style.transform =
-          "translate(" +
-          this.pool[prevIndex].x +
-          "vw," +
-          this.pool[prevIndex].y +
-          "vh" +
-          ")";
-        e.target.style.transform =
-          "translate(" +
-          this.pool[curIndex].x +
-          "vw," +
-          this.pool[curIndex].y +
-          "vh" +
-          ")";
+
+        //   console.log( this.pool[prevIndex].x, this.pool[prevIndex].y);
+        //   console.log( this.pool[curIndex].x, this.pool[curIndex].y);
+        this.checkElementAdjacent(this.pool[prevIndex], this.pool[curIndex]);
+
+        if (
+          this.checkElementAdjacent(this.pool[prevIndex], this.pool[curIndex])
+        ) {
+          this.swap(this.pool, prevIndex, curIndex);
+          this.prevEl.style.transform =
+            "translate(" +
+            this.pool[prevIndex].x +
+            "vw," +
+            this.pool[prevIndex].y +
+            "vh" +
+            ")";
+          e.target.style.transform =
+            "translate(" +
+            this.pool[curIndex].x +
+            "vw," +
+            this.pool[curIndex].y +
+            "vh" +
+            ")";
+        } else {
+          alert("只有相邻的元素才可以互换位置哦");
+        }
+
         // 清除样式
         // this.prevEl.className= this.prevEl.className.replace(' active', '');
         this.boxArractivelass = -1;
@@ -197,6 +276,21 @@ export default {
           this.transformX(this.$refs.wrap, this.startDx + "vw");
           //   }, 1200);
         }
+      }
+    },
+
+    //检测点击的两个元素是否相邻
+    checkElementAdjacent(prev, next) {
+      //判断横向相邻元素,或者纵向元素相邻
+      if (
+        (prev.y === next.y && Math.abs(prev.x - next.x) == 28) ||
+        (prev.x === next.x && Math.abs(prev.y - next.y) == 20)
+      ) {
+        console.log("Yes");
+        return true;
+      } else {
+        console.log("No");
+        return false;
       }
     },
 
@@ -266,7 +360,7 @@ export default {
         var that = this;
         var img = new Image();
         img.src = that.selectedImg;
-        img.setAttribute("crossOrigin",'Anonymous')
+        img.setAttribute("crossOrigin", "Anonymous");
         img.onload = function() {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
           imgH = (0.5 * winW * this.height) / this.width;
@@ -300,7 +394,8 @@ export default {
           // drawCode();
 
           var imgCode = new Image();
-          imgCode.src = require("../assets/images/code.jpg");
+          //imgCode.src = require("../assets/images/code.jpg");
+          imgCode.src = require("../assets/images/code-step1.png");
           imgCode.onload = function() {
             ctx.drawImage(
               imgCode,
@@ -313,7 +408,7 @@ export default {
             // 生成预览图
             var img = new Image();
             img.src = that.convertCanvasToImage(canvas, 1).src;
-            img.setAttribute("crossOrigin",'Anonymous');
+            img.setAttribute("crossOrigin", "Anonymous");
             img.className = "previewImg";
             img.onload = function() {
               that.canvasUrl = this.src;
@@ -356,7 +451,6 @@ export default {
       return arr.sort(function() {
         return Math.random() > 0.5 ? -1 : 1;
       });
-
     },
     // 置换数组(对应索引的x,y值进行交换)
     swap(arr, indexA, indexB) {
@@ -375,7 +469,7 @@ export default {
       // arr[indexB] = cache;
 
       // ES6的解耦交换方式： [arr[index], arr[n]] = [arr[n], arr[index]];
-      [arr[indexA],arr[indexB]] = [arr[indexB],arr[indexA]];
+      [arr[indexA], arr[indexB]] = [arr[indexB], arr[indexA]];
     },
 
     // 校验是否成功方法
