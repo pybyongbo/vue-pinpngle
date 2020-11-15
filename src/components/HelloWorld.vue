@@ -3,6 +3,11 @@
   <div class="wrap" ref="wrap">
     <div class="start-page">
       <h1>{{ msg }}</h1>
+      <div class="gradestep"><span>挑战等级:</span>
+        <select name="grade" id="grade"  v-model="gradeSelected" @change="getGradeSelected">
+            <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
+        </select>
+      </div>
       <div class="album-list">
         <div class="img-wrap" v-for="(item,index) in imgArr" :class="activeClass == index ? 'active':''" :key="index" @click="getItem(index)">
           <img :src="item.url" alt="">
@@ -12,17 +17,20 @@
             <input type="file" id="file" @change="onFileChange">
           </div>
         </div>
-
         <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
       </div>
     </div>
 
     <div class="play-page">
       <div class="deloy">倒计时：<span id="time">{{dealtime}}</span></div>
-      <!-- <Cutdown ref="child" :success="issuccess" @overtime="overtime"></Cutdown> -->
       <div class="play-area" id="playArea">
-        <!-- :style="{backgroundImage:'url('+selectedImg+')',transform: `translate(${matrixArr[item].x}vw, ${matrixArr[item].y}vh)`}" -->
-        <div v-for="item in boxArr" :index="item" :key="item" :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" :style="{backgroundImage:'url('+selectedImg+')'}" @click="changePositon($event,item)" :ref="'piece' +item"></div>
+        <div 
+        v-for="item in boxArr" 
+        :index="item" 
+        :key="item" 
+        :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" 
+        :style="{backgroundImage:'url('+selectedImg+')'}" 
+        @click="changePositon($event,item)" :ref="'piece' +item"></div>
       </div>
       <div class="btn" id="change" @click="reOrder()">重新排序</div>
       <div class="btn" id="back" @click="goBack()">返回</div>
@@ -64,13 +72,26 @@ export default {
       clickStartBtn: false,
       uploadimg: "",
       selectedImg: "",
-      boxArr: new Array(9).fill(1).map((item, index) => {
-        return index;
-      }),
+      // 等级控制
+      gradeList:[
+        {
+            id: 3,
+            name: '简单'
+        },
+        {
+            id: 4,
+            name: '中级'
+        },
+        {
+            id: 5,
+            name: '高级'
+        }
+    ],
+    gradeSelected: 3,
+     squalbox:9,
+      boxArr:[],
       pieces: document.querySelectorAll(".piece"),
-      pool: this.generateMatrix(3, 28, 20),
-      matrixArr: this.upsetArr(this.generateMatrix(3, 28, 20)),
-      //  matrixArr:this.shuffle(this.pieces, this.pool),
+      pool: [],
       imgArr: [
         // { url: require("../assets/images/timg2.jpeg") },
         // { url: require("../assets/images/timg3.jpeg") },
@@ -96,10 +117,46 @@ export default {
       timer: null,
       issuccess: false,
       canvasUrl: "",
-      isVisible: false
+      isVisible: false,
+     
     };
   },
+  created(){
+      this.gradeSelected = this.gradeList[0].id;
+      this.pool = this.generateMatrix(+this.gradeSelected, +(84/this.gradeSelected), +(60/this.gradeSelected));
+      //   console.log(+this.gradeSelected*(+this.gradeSelected));
+      this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
+        return index;
+      })
+  },
+  mounted(){
+      if(this.gradeSelected===3){
+          import('../assets/style/default.css') 
+      } else if(this.gradeSelected===4) {
+          import('../assets/style/middle.css')
+      }
+  },
+  computed:{
+  
+  },
   methods: {
+    getGradeSelected(){
+        console.log(this.gradeSelected);
+        this.boxNum = this.gradeSelected;
+        this.squalbox = +this.gradeSelected*(+this.gradeSelected);
+        this.pool = this.generateMatrix(+this.gradeSelected, +(84/this.gradeSelected), +(60/this.gradeSelected));
+        this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
+        return index;
+      })
+      console.log(+this.gradeSelected*(+this.gradeSelected));
+      if(this.gradeSelected===3){
+          require('../assets/style/default.css');
+          console.log(333);
+      } else if(this.gradeSelected===4) {
+          require('../assets/style/middle.css');
+           console.log(444);
+      }
+    },
     getItem(index) {
       this.activeClass = index;
     },
@@ -115,7 +172,6 @@ export default {
 
       reader.onload = e => {
         vm.uploadimg = e.target.result;
-        // console.log(123,e.target.result)
         this.imgArr.push({
           url: e.target.result
         });
@@ -132,12 +188,19 @@ export default {
       this.startDx = this.startDx - 100;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
       this.selectedImg = this.imgArr[picIndex].url;
-
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
-      //   console.log(222);
+       if(this.gradeSelected===3){
+        require('../assets/style/default.css');
+        console.log(333);
+      } else if(this.gradeSelected===4) {
+
+          require('../assets/style/middle.css');
+          console.log(444);
+      }
+
+      
     },
     reOrder() {
-      //this.matrixArr = this.upsetArr(this.generateMatrix(3, 28, 20));
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
     },
     // 点击高亮并且切换对应位置 (想办法交换对应索引位置的x,y值即可)
@@ -207,9 +270,6 @@ export default {
         alert("挑战失败，请返回重新开始");
       }
     },
-    // overtime(num) {
-    //   this.step = num;
-    // },
     // 滑动元素
     transformX(el, dx) {
       el.style.transform = "translateX(" + dx + ")";
@@ -329,6 +389,7 @@ export default {
 
     // 生成n维矩阵
     generateMatrix(n, dx, dy) {
+       
       var arr = [],
         index = 0;
       for (var i = 0; i < n; i++) {
@@ -337,6 +398,9 @@ export default {
           index++;
         }
       }
+     
+      console.log('arr',JSON.stringify(arr));
+
       return arr;
     },
 
@@ -406,6 +470,15 @@ div {
   box-sizing: border-box;
 }
 
+.gradestep{
+    margin-bottom:10px;
+}
+.gradeste span{
+    margin-right:8px;
+}
+.gradeste select{
+    padding:3px 5px;
+}
 .btn {
   display: inline-block;
   padding: 10px 60px;
@@ -520,24 +593,29 @@ div {
   outline-color: #1f8b40;
 }
 
-.play-page .play-area .piece {
-  position: absolute;
+/* .play-page .play-area .piece { */
+  /* position: absolute;
   left: 0;
-  top: 0;
-  width: 28vw;
-  height: 20vh;
-  border: 1px solid transparent;
-  /* background-image: url(../assets/images/caixushen.jpg); */
+  top: 0; */
+  
+  /* width: 28vw;
+  height: 20vh; */
+  
+  /* 每个方块的宽高要动态设置 */
+  /* width:21vw;
+  height: 15vh; */
+  /* border: 1px solid transparent;
+
   background-repeat: no-repeat;
   background-size: 84vw 60vh;
-  transition: transform 0.6s ease-in-out;
-}
+  transition: transform 0.6s ease-in-out; */
+/* } */
 
 .play-page .play-area .piece.active {
   border: 3px solid red;
 }
-
-.play-page .play-area .piece-0 {
+/* 分割3*3的方块 */
+ /* .play-page .play-area .piece-0 {
   background-position: 0 0;
 }
 
@@ -571,7 +649,69 @@ div {
 
 .play-page .play-area .piece-8 {
   background-position: -56vw -40vh;
+}  */
+
+/* 分割4*4的方块 */
+
+/* .play-page .play-area .piece-0 {
+  background-position: 0 0;
 }
+.play-page .play-area .piece-1 {
+  background-position: -21vw 0;
+}
+.play-page .play-area .piece-2 {
+  background-position: -42vw 0;
+}
+.play-page .play-area .piece-3 {
+  background-position:-63vw 0;
+}
+.play-page .play-area .piece-4 {
+  background-position: 0vw -15vh;
+}
+
+
+.play-page .play-area .piece-5 {
+  background-position: -21vw -15vh;
+}
+
+.play-page .play-area .piece-6 {
+  background-position: -42vw -15vh;
+}
+
+.play-page .play-area .piece-7 {
+  background-position: -63vw -15vh;
+}
+
+.play-page .play-area .piece-8 {
+  background-position: -0vw -30vh;
+}
+
+.play-page .play-area .piece-9 {
+  background-position: -21vw -30vh;
+}
+
+.play-page .play-area .piece-10 {
+  background-position: -42vw -30vh;
+}
+
+.play-page .play-area .piece-11 {
+  background-position: -63vw -30vh;
+}
+
+.play-page .play-area .piece-12 {
+  background-position: -0vw -45vh;
+}
+
+.play-page .play-area .piece-13 {
+  background-position: -21vw -45vh;
+}
+
+.play-page .play-area .piece-14 {
+  background-position: -42vw -45vh;
+}
+.play-page .play-area .piece-15 {
+  background-position: -63vw -45vh;
+} */
 
 .result-page {
   padding-left: 20px;
