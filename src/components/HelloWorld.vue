@@ -56,6 +56,8 @@
 </template>
 
 <script>
+import localStorage from "../util/storage";
+import {setSkinStyle} from '../util/setStyle';
 export default {
   name: "HelloWorld",
   props: {
@@ -130,11 +132,12 @@ export default {
       })
   },
   mounted(){
-      if(this.gradeSelected===3){
-          import('../assets/style/default.css') 
-      } else if(this.gradeSelected===4) {
-          import('../assets/style/middle.css')
-      }
+    //   if(this.gradeSelected===3){
+    //       import('../assets/style/default.css') 
+    //   } else if(this.gradeSelected===4) {
+    //       import('../assets/style/middle.css')
+    //   }
+    localStorage.setSkin('three');
   },
   computed:{
   
@@ -150,10 +153,12 @@ export default {
       })
       console.log(+this.gradeSelected*(+this.gradeSelected));
       if(this.gradeSelected===3){
-          require('../assets/style/default.css');
+        //   require('../assets/style/default.css');
+        localStorage.setSkin('three');
           console.log(333);
       } else if(this.gradeSelected===4) {
-          require('../assets/style/middle.css');
+          localStorage.setSkin('four');
+        //   require('../assets/style/middle.css');
            console.log(444);
       }
     },
@@ -183,22 +188,15 @@ export default {
         alert("请选择图片");
         return;
       }
-      //   this.dealtime = 180;
       this.timer = setInterval(this.timeStart, 1000);
       this.startDx = this.startDx - 100;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
       this.selectedImg = this.imgArr[picIndex].url;
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
-       if(this.gradeSelected===3){
-        require('../assets/style/default.css');
-        console.log(333);
-      } else if(this.gradeSelected===4) {
+      let skin = localStorage.getSkin();
+      console.log('skin',skin);
+      setSkinStyle(skin);
 
-          require('../assets/style/middle.css');
-          console.log(444);
-      }
-
-      
     },
     reOrder() {
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
@@ -476,8 +474,14 @@ div {
 .gradeste span{
     margin-right:8px;
 }
-.gradeste select{
+#grade{
     padding:3px 5px;
+    width:120px;
+    overflow: hidden;
+}
+.gradeste select option{
+    width:110px;
+    line-height: 20px;
 }
 .btn {
   display: inline-block;
@@ -509,6 +513,10 @@ div {
 .start-page .title {
   line-height: 4em;
   font-size: 24px;
+}
+
+.start-page h1{
+    margin-bottom:10px;
 }
 
 .start-page .album-list {
@@ -593,126 +601,9 @@ div {
   outline-color: #1f8b40;
 }
 
-/* .play-page .play-area .piece { */
-  /* position: absolute;
-  left: 0;
-  top: 0; */
-  
-  /* width: 28vw;
-  height: 20vh; */
-  
-  /* 每个方块的宽高要动态设置 */
-  /* width:21vw;
-  height: 15vh; */
-  /* border: 1px solid transparent;
-
-  background-repeat: no-repeat;
-  background-size: 84vw 60vh;
-  transition: transform 0.6s ease-in-out; */
-/* } */
-
 .play-page .play-area .piece.active {
   border: 3px solid red;
 }
-/* 分割3*3的方块 */
- /* .play-page .play-area .piece-0 {
-  background-position: 0 0;
-}
-
-.play-page .play-area .piece-1 {
-  background-position: -28vw 0;
-}
-
-.play-page .play-area .piece-2 {
-  background-position: -56vw 0;
-}
-
-.play-page .play-area .piece-3 {
-  background-position: 0 -20vh;
-}
-
-.play-page .play-area .piece-4 {
-  background-position: -28vw -20vh;
-}
-
-.play-page .play-area .piece-5 {
-  background-position: -56vw -20vh;
-}
-
-.play-page .play-area .piece-6 {
-  background-position: 0 -40vh;
-}
-
-.play-page .play-area .piece-7 {
-  background-position: -28vw -40vh;
-}
-
-.play-page .play-area .piece-8 {
-  background-position: -56vw -40vh;
-}  */
-
-/* 分割4*4的方块 */
-
-/* .play-page .play-area .piece-0 {
-  background-position: 0 0;
-}
-.play-page .play-area .piece-1 {
-  background-position: -21vw 0;
-}
-.play-page .play-area .piece-2 {
-  background-position: -42vw 0;
-}
-.play-page .play-area .piece-3 {
-  background-position:-63vw 0;
-}
-.play-page .play-area .piece-4 {
-  background-position: 0vw -15vh;
-}
-
-
-.play-page .play-area .piece-5 {
-  background-position: -21vw -15vh;
-}
-
-.play-page .play-area .piece-6 {
-  background-position: -42vw -15vh;
-}
-
-.play-page .play-area .piece-7 {
-  background-position: -63vw -15vh;
-}
-
-.play-page .play-area .piece-8 {
-  background-position: -0vw -30vh;
-}
-
-.play-page .play-area .piece-9 {
-  background-position: -21vw -30vh;
-}
-
-.play-page .play-area .piece-10 {
-  background-position: -42vw -30vh;
-}
-
-.play-page .play-area .piece-11 {
-  background-position: -63vw -30vh;
-}
-
-.play-page .play-area .piece-12 {
-  background-position: -0vw -45vh;
-}
-
-.play-page .play-area .piece-13 {
-  background-position: -21vw -45vh;
-}
-
-.play-page .play-area .piece-14 {
-  background-position: -42vw -45vh;
-}
-.play-page .play-area .piece-15 {
-  background-position: -63vw -45vh;
-} */
-
 .result-page {
   padding-left: 20px;
   padding-right: 20px;
