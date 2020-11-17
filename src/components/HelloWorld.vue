@@ -4,8 +4,8 @@
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="gradestep"><span>挑战等级:</span>
-        <select name="grade" id="grade"  v-model="gradeSelected" @change="getGradeSelected">
-            <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
+        <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
+          <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
         </select>
       </div>
       <div class="album-list">
@@ -24,13 +24,7 @@
     <div class="play-page">
       <div class="deloy">倒计时：<span id="time">{{dealtime}}</span></div>
       <div class="play-area" id="playArea">
-        <div 
-        v-for="item in boxArr" 
-        :index="item" 
-        :key="item" 
-        :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" 
-        :style="{backgroundImage:'url('+selectedImg+')'}" 
-        @click="changePositon($event,item)" :ref="'piece' +item"></div>
+        <div v-for="item in boxArr" :index="item" :key="item" :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" :style="{backgroundImage:'url('+selectedImg+')'}" @click="changePositon($event,item)" :ref="'piece' +item"></div>
       </div>
       <div class="btn" id="change" @click="reOrder()">重新排序</div>
       <div class="btn" id="back" @click="goBack()">返回</div>
@@ -57,7 +51,7 @@
 
 <script>
 import localStorage from "../util/storage";
-import {setSkinStyle} from '../util/setStyle';
+import { setSkinStyle } from "../util/setStyle";
 export default {
   name: "HelloWorld",
   props: {
@@ -75,42 +69,42 @@ export default {
       uploadimg: "",
       selectedImg: "",
       // 等级控制
-      gradeList:[
+      gradeList: [
         {
-            id: 3,
-            name: '简单'
+          id: 3,
+          name: "简单"
         },
         {
-            id: 4,
-            name: '中级'
+          id: 4,
+          name: "中级"
         },
         {
-            id: 5,
-            name: '高级'
+          id: 5,
+          name: "高级"
         }
-    ],
-    gradeSelected: 3,
-     squalbox:9,
-      boxArr:[],
+      ],
+      gradeSelected: 3,
+      squalbox: 9,
+      boxArr: [],
       pieces: document.querySelectorAll(".piece"),
       pool: [],
       imgArr: [
-        // { url: require("../assets/images/timg2.jpeg") },
-        // { url: require("../assets/images/timg3.jpeg") },
-        // { url: require("../assets/images/timg.jpeg") },
-        // { url: require("../assets/images/caixushen.jpg") },
-        // { url: require("../assets/images/yang.jpeg") },
-        // { url: require("../assets/images/re.jpeg") },
-        // { url: require("../assets/images/timg4.jpeg") },
-        // { url: require("../assets/images/timg6.jpeg") }
-        { url: require("../assets/images/2020-10-22-pic2.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic47.jpeg")},
-        { url: require("../assets/images/2020-10-22-pic3.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic5.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic4.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic1.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic7.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic8.jpeg") }
+        { url: require("../assets/images/timg2.jpeg") },
+        { url: require("../assets/images/timg3.jpeg") },
+        { url: require("../assets/images/timg.jpeg") },
+        { url: require("../assets/images/caixushen.jpg") },
+        { url: require("../assets/images/yang.jpeg") },
+        { url: require("../assets/images/re.jpeg") },
+        { url: require("../assets/images/timg4.jpeg") },
+        { url: require("../assets/images/timg6.jpeg") }
+        // { url: require("../assets/images/2020-10-22-pic2.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic47.jpeg")},
+        // { url: require("../assets/images/2020-10-22-pic3.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic5.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic4.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic1.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic7.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic8.jpeg") }
       ],
 
       wall: 0,
@@ -119,47 +113,65 @@ export default {
       timer: null,
       issuccess: false,
       canvasUrl: "",
-      isVisible: false,
-     
+      isVisible: false
     };
   },
-  created(){
-      this.gradeSelected = this.gradeList[0].id;
-      this.pool = this.generateMatrix(+this.gradeSelected, +(84/this.gradeSelected), +(60/this.gradeSelected));
-      //   console.log(+this.gradeSelected*(+this.gradeSelected));
-      this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
-        return index;
-      })
+  created() {
+    this.gradeSelected = this.gradeList[0].id;
+    this.pool = this.generateMatrix(
+      +this.gradeSelected,
+      +(84 / this.gradeSelected),
+      +(60 / this.gradeSelected)
+    );
+    //   console.log(+this.gradeSelected*(+this.gradeSelected));
+    this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
+      return index;
+    });
   },
-  mounted(){
+  mounted() {
     //   if(this.gradeSelected===3){
-    //       import('../assets/style/default.css') 
+    //       import('../assets/style/default.css')
     //   } else if(this.gradeSelected===4) {
     //       import('../assets/style/middle.css')
     //   }
-    localStorage.setSkin('three');
+    localStorage.setSkin("three");
   },
-  computed:{
-  
+  computed: {
+    gradestepDesc() {
+      if (this.gradeSelected === 3) {
+        return "简单";
+      } else if (this.gradeSelected === 4) {
+        return "中级";
+      } else if (this.gradeSelected === 5) {
+        return "高级";
+      } else  {
+        return "简单";
+      }
+    }
   },
   methods: {
-    getGradeSelected(){
-        console.log(this.gradeSelected);
-        this.boxNum = this.gradeSelected;
-        this.squalbox = +this.gradeSelected*(+this.gradeSelected);
-        this.pool = this.generateMatrix(+this.gradeSelected, +(84/this.gradeSelected), +(60/this.gradeSelected));
-        this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
+    getGradeSelected() {
+      console.log(this.gradeSelected);
+      this.boxNum = this.gradeSelected;
+      this.squalbox = +this.gradeSelected * +this.gradeSelected;
+      this.pool = this.generateMatrix(
+        +this.gradeSelected,
+        +(84 / this.gradeSelected),
+        +(60 / this.gradeSelected)
+      );
+      this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
         return index;
-      })
-      console.log(+this.gradeSelected*(+this.gradeSelected));
-      if(this.gradeSelected===3){
-        //   require('../assets/style/default.css');
-        localStorage.setSkin('three');
-          console.log(333);
-      } else if(this.gradeSelected===4) {
-          localStorage.setSkin('four');
-        //   require('../assets/style/middle.css');
-           console.log(444);
+      });
+      console.log(+this.gradeSelected * +this.gradeSelected);
+      if (this.gradeSelected === 3) {
+        localStorage.setSkin("three");
+        console.log(333);
+      } else if (this.gradeSelected === 4) {
+        localStorage.setSkin("four");
+        console.log(444);
+      } else if (this.gradeSelected === 5) {
+        localStorage.setSkin("five");
+        console.log(555);
       }
     },
     getItem(index) {
@@ -194,9 +206,8 @@ export default {
       this.selectedImg = this.imgArr[picIndex].url;
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
       let skin = localStorage.getSkin();
-      console.log('skin',skin);
+      console.log("skin", skin);
       setSkinStyle(skin);
-
     },
     reOrder() {
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
@@ -324,12 +335,25 @@ export default {
         var that = this;
         var img = new Image();
         img.src = that.selectedImg;
-        img.setAttribute("crossOrigin",'Anonymous')
+        img.setAttribute("crossOrigin", "Anonymous");
         img.onload = function() {
           // 绘制的图片宽为.7winW, 根据等比换算绘制的图片高度为 .7winW*imgH/imgW
           imgH = (0.5 * winW * this.height) / this.width;
           // ctx.drawImage(img, 0.2 * winW, 0.1 * winH, 0.6 * winW, imgH);
           ctx.drawImage(img, 0.2 * winW, 20, 0.6 * winW, imgH);
+
+          ctx.fillStyle = "#f00";
+          ctx.font = 20+ "px Helvetica";
+          ctx.textBaseline = "hanging";
+          ctx.textAlign = "center";
+          ctx.moveTo(0, 10);
+          ctx.fillText(
+            `挑战等级:${that.gradestepDesc}`,
+            winW / 2,
+            0.05 * winH + imgH
+            // 80+imgH
+            // 100
+          );
           // drawText();
           // ctx.save();
           ctx.fillStyle = "#fff";
@@ -338,7 +362,7 @@ export default {
           ctx.textAlign = "center";
           ctx.moveTo(10, 10);
           ctx.fillText(
-            "我只用了" + (180 - that.dealtime) + "s," + "快来挑战！",
+            "我只用了" + (180 - that.dealtime) + `s,挑战完成,你也` + "快来挑战！",
             winW / 2,
             0.1 * winH + imgH
             // 80+imgH
@@ -371,7 +395,7 @@ export default {
             // 生成预览图
             var img = new Image();
             img.src = that.convertCanvasToImage(canvas, 1).src;
-            img.setAttribute("crossOrigin",'Anonymous');
+            img.setAttribute("crossOrigin", "Anonymous");
             img.className = "previewImg";
             img.onload = function() {
               that.canvasUrl = this.src;
@@ -387,7 +411,6 @@ export default {
 
     // 生成n维矩阵
     generateMatrix(n, dx, dy) {
-       
       var arr = [],
         index = 0;
       for (var i = 0; i < n; i++) {
@@ -396,8 +419,8 @@ export default {
           index++;
         }
       }
-     
-      console.log('arr',JSON.stringify(arr));
+
+      console.log("arr", JSON.stringify(arr));
 
       return arr;
     },
@@ -418,7 +441,6 @@ export default {
       return arr.sort(function() {
         return Math.random() > 0.5 ? -1 : 1;
       });
-
     },
     // 置换数组(对应索引的x,y值进行交换)
     swap(arr, indexA, indexB) {
@@ -437,7 +459,7 @@ export default {
       // arr[indexB] = cache;
 
       // ES6的解耦交换方式： [arr[index], arr[n]] = [arr[n], arr[index]];
-      [arr[indexA],arr[indexB]] = [arr[indexB],arr[indexA]];
+      [arr[indexA], arr[indexB]] = [arr[indexB], arr[indexA]];
     },
 
     // 校验是否成功方法
@@ -468,20 +490,20 @@ div {
   box-sizing: border-box;
 }
 
-.gradestep{
-    margin-bottom:10px;
+.gradestep {
+  margin-bottom: 10px;
 }
-.gradeste span{
-    margin-right:8px;
+.gradeste span {
+  margin-right: 8px;
 }
-#grade{
-    padding:3px 5px;
-    width:120px;
-    overflow: hidden;
+#grade {
+  padding: 3px 5px;
+  width: 120px;
+  overflow: hidden;
 }
-.gradeste select option{
-    width:110px;
-    line-height: 20px;
+.gradeste select option {
+  width: 110px;
+  line-height: 20px;
 }
 .btn {
   display: inline-block;
@@ -515,8 +537,8 @@ div {
   font-size: 24px;
 }
 
-.start-page h1{
-    margin-bottom:10px;
+.start-page h1 {
+  margin-bottom: 10px;
 }
 
 .start-page .album-list {
