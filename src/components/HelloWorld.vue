@@ -89,22 +89,22 @@ export default {
       pieces: document.querySelectorAll(".piece"),
       pool: [],
       imgArr: [
-        // { url: require("../assets/images/timg2.jpeg") },
-        // { url: require("../assets/images/timg3.jpeg") },
-        // { url: require("../assets/images/timg.jpeg") },
-        // { url: require("../assets/images/caixushen.jpg") },
-        // { url: require("../assets/images/yang.jpeg") },
-        // { url: require("../assets/images/re.jpeg") },
-        // { url: require("../assets/images/timg4.jpeg") },
-        // { url: require("../assets/images/timg6.jpeg") }
-        { url: require("../assets/images/2020-10-22-pic2.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic47.jpeg")},
-        { url: require("../assets/images/2020-10-22-pic3.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic5.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic4.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic1.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic7.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic8.jpeg") }
+        { url: require("../assets/images/timg2.jpeg") },
+        { url: require("../assets/images/timg3.jpeg") },
+        { url: require("../assets/images/timg.jpeg") },
+        { url: require("../assets/images/caixushen.jpg") },
+        { url: require("../assets/images/yang.jpeg") },
+        { url: require("../assets/images/re.jpeg") },
+        { url: require("../assets/images/timg4.jpeg") },
+        { url: require("../assets/images/timg6.jpeg") }
+        // { url: require("../assets/images/2020-10-22-pic2.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic47.jpeg")},
+        // { url: require("../assets/images/2020-10-22-pic3.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic5.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic4.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic1.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic7.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic8.jpeg") }
       ],
 
       wall: 0,
