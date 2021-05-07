@@ -11,14 +11,18 @@
     </div>
     <div class="start-page">
       <h1>{{ msg }}</h1>
-      <div class="gradestep"><span>挑战等级:</span>
-        <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
+      <div class="gradestep">
+        <span style="margin-right:20px" @click="handleClickPopshow">挑战等级<van-icon name="wap-nav" /></span>
+        <span>游戏说明<van-icon name="question" /></span>
+        <!-- <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
           <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
-        </select>
+        </select> -->
       </div>
+
+     
       <div class="album-list">
         <van-grid :column-num="3">
-          <van-grid-item v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''"  @click="getItem(index)">
+          <van-grid-item  v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''"  @click="getItem(index)">
             <template slot="icon">
               <img class="new-icon" :src='item.url' style="width:100%;max-height:125px;" />
             </template>
@@ -26,6 +30,18 @@
         </van-grid>
         <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
       </div>
+
+       <van-action-sheet v-model="popupShow" :round="false" title="选择挑战等级">
+        <div>
+          <van-list>
+            <van-cell @click="chooseArea(item)" v-for="(item, index) in gradeList" :key="index" :title="`${item.name}-(${item.id}*${item.id})`">
+                <template #right-icon>
+                <van-icon name="success" color="#E4B180" :class="item.id == gradeSelected ? '':'hiddennone'"/>
+              </template>
+            </van-cell>
+          </van-list>
+        </div>
+      </van-action-sheet>
     </div>
 
     <div class="play-page">
@@ -69,6 +85,7 @@ export default {
     return {
       username:'',
       id:'',
+      popupShow:false,
       startDx: 0, // 初始位移，用于返回上一页
       activeClass: -1,
       boxArractivelass: -1,
@@ -134,17 +151,11 @@ export default {
       +(84 / this.gradeSelected),
       +(60 / this.gradeSelected)
     );
-    //   console.log(+this.gradeSelected*(+this.gradeSelected));
     this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
       return index;
     });
   },
   mounted() {
-    //   if(this.gradeSelected===3){
-    //       import('../assets/style/default.css')
-    //   } else if(this.gradeSelected===4) {
-    //       import('../assets/style/middle.css')
-    //   }
     localStorage.setSkin("three");
   },
   computed: {
@@ -161,6 +172,15 @@ export default {
     }
   },
   methods: {
+    handleClickPopshow(){
+        this.popupShow = true
+    },
+    chooseArea (item) {
+        console.log(item)
+      this.gradeSelected = item.id
+    //   this.areaName = item.name
+    //   this.show = false
+    },
     getGradeSelected() {
       console.log(this.gradeSelected);
       this.boxNum = this.gradeSelected;
@@ -281,11 +301,8 @@ export default {
           this.startDx -= 100;
           this.issuccess = true;
 
-          // $('#playArea')[0].classList.add('active');
-          // $('#use_time').html(180-dealtime);
-          //   setTimeout(function() {
           this.transformX(this.$refs.wrap, this.startDx + "vw");
-          //   }, 1200);
+ 
         }
       }
     },
@@ -506,6 +523,22 @@ div {
 .gradeste span {
   margin-right: 8px;
 }
+.van-icon{
+    top:2px;
+    left:3px;
+}
+.van-action-sheet{
+    transform: translateX(-100vw);
+}
+.van-action-sheet__header i{
+    top:0;
+    right:-15%;
+}
+.van-icon.van-icon-success{
+    /* right:-5%; */
+    transform: translateX(-207vw);
+}
+.hiddennone{opacity: 0;}
 #grade {
   padding: 3px 5px;
   width: 120px;
@@ -522,7 +555,7 @@ div {
   background-color: #06c;
   color: #fff;
   cursor: pointer;
-  margin: 40px auto 10px;
+  margin: 5% auto 10px;
 }
 #back {
   margin-top: 10px;
