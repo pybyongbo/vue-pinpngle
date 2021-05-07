@@ -1,6 +1,14 @@
 <template>
   <!-- :style="{transform: `translateX(${clickStartBtn?-100:0}vw)`}" -->
   <div class="wrap" ref="wrap">
+    <div class="check-page">
+      <h1>无需注册,验证即玩</h1>
+      <van-cell-group>
+        <van-field v-model="username" label="用户姓名" placeholder="请输入您的姓名" name="username" autocomplete="off" clearable label-align="right" label-width="78" />
+        <van-field v-model="id" type="number" label="用户ID号" placeholder="请输入ID号"  name="id" clearable autocomplete="off" label-align="right" label-width="78" />
+      </van-cell-group>
+      <van-button type="primary" color="#06c" block @click="checkLogin()">验证登录</van-button>
+    </div>
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="gradestep"><span>挑战等级:</span>
@@ -9,14 +17,13 @@
         </select>
       </div>
       <div class="album-list">
-        <div class="img-wrap" v-for="(item,index) in imgArr" :class="activeClass == index ? 'active':''" :key="index" @click="getItem(index)">
-          <img :src="item.url" alt="">
-        </div>
-        <div class="img-wrap" v-if="!uploadimg">
-          <div class="file-wrap" ref="filewrap">
-            <input type="file" id="file" @change="onFileChange">
-          </div>
-        </div>
+        <van-grid :column-num="3">
+          <van-grid-item v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''"  @click="getItem(index)">
+            <template slot="icon">
+              <img class="new-icon" :src='item.url' style="width:100%;max-height:125px;" />
+            </template>
+          </van-grid-item>
+        </van-grid>
         <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
       </div>
     </div>
@@ -50,6 +57,7 @@
 </template>
 
 <script>
+import { Toast } from 'vant';
 import localStorage from "../util/storage";
 import { setSkinStyle } from "../util/setStyle";
 export default {
@@ -59,6 +67,8 @@ export default {
   },
   data() {
     return {
+      username:'',
+      id:'',
       startDx: 0, // 初始位移，用于返回上一页
       activeClass: -1,
       boxArractivelass: -1,
@@ -96,7 +106,8 @@ export default {
         { url: require("../assets/images/yang.jpeg") },
         { url: require("../assets/images/re.jpeg") },
         { url: require("../assets/images/timg4.jpeg") },
-        { url: require("../assets/images/timg6.jpeg") }
+        { url: require("../assets/images/timg6.jpeg") },
+        { url: require("../assets/images/2020-10-22-pic2.jpeg") }
         // { url: require("../assets/images/2020-10-22-pic2.jpeg") },
         // { url: require("../assets/images/2020-10-22-pic47.jpeg")},
         // { url: require("../assets/images/2020-10-22-pic3.jpeg") },
@@ -144,7 +155,7 @@ export default {
         return "中级";
       } else if (this.gradeSelected === 5) {
         return "高级";
-      } else  {
+      } else {
         return "简单";
       }
     }
@@ -195,9 +206,16 @@ export default {
       };
       reader.readAsDataURL(file);
     },
+    checkLogin(){
+      this.startDx = this.startDx - 100;
+      this.transformX(this.$refs.wrap, this.startDx + "vw");
+    },
     startGame(picIndex) {
       if (this.activeClass == -1) {
-        alert("请选择图片");
+        Toast({
+          message: '请先选择图片哦~',
+          position: 'top',
+        });
         return;
       }
       this.timer = setInterval(this.timeStart, 1000);
@@ -206,7 +224,7 @@ export default {
       this.selectedImg = this.imgArr[picIndex].url;
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
       let skin = localStorage.getSkin();
-      console.log("skin", skin);
+      // console.log("skin", skin);
       setSkinStyle(skin);
     },
     reOrder() {
@@ -343,7 +361,7 @@ export default {
           ctx.drawImage(img, 0.2 * winW, 20, 0.6 * winW, imgH);
 
           ctx.fillStyle = "#f00";
-          ctx.font = 20+ "px Helvetica";
+          ctx.font = 20 + "px Helvetica";
           ctx.textBaseline = "hanging";
           ctx.textAlign = "center";
           ctx.moveTo(0, 10);
@@ -362,7 +380,10 @@ export default {
           ctx.textAlign = "center";
           ctx.moveTo(10, 10);
           ctx.fillText(
-            "我只用了" + (180 - that.dealtime) + `s,挑战完成,你也` + "快来挑战！",
+            "我只用了" +
+              (180 - that.dealtime) +
+              `s,挑战完成,你也` +
+              "快来挑战！",
             winW / 2,
             0.1 * winH + imgH
             // 80+imgH
@@ -444,20 +465,7 @@ export default {
     },
     // 置换数组(对应索引的x,y值进行交换)
     swap(arr, indexA, indexB) {
-      // let targetArr = [];
-      // arr.map(item => {
-      //   if (item.index == indexA || item.index == indexB) {
-      //     targetArr.push(item);
-      //   }
-      // });
-      // [targetArr[0].x, targetArr[1].x] = [targetArr[1].x, targetArr[0].x];
-      // [targetArr[0].y, targetArr[1].y] = [targetArr[1].y, targetArr[0].y];
-
-      // return targetArr;
-      // var cache = arr[indexA];
-      // arr[indexA] = arr[indexB];
-      // arr[indexB] = cache;
-
+   
       // ES6的解耦交换方式： [arr[index], arr[n]] = [arr[n], arr[index]];
       [arr[indexA], arr[indexB]] = [arr[indexB], arr[indexA]];
     },
@@ -482,14 +490,16 @@ export default {
 <style scoped>
 .wrap {
   display: flex;
-  width: 400vw;
+  width: 500vw;
   transition: transform 1s cubic-bezier(0.52, 0.37, 0.16, 1.32);
 }
 
 div {
   box-sizing: border-box;
 }
-
+.van-cell-group{
+  margin-top:20%;
+}
 .gradestep {
   margin-bottom: 10px;
 }
@@ -523,6 +533,13 @@ div {
 .start-page .title {
   text-align: center;
 }
+.check-page{
+  padding:0 20px;
+}
+.check-page button{
+  margin-top:50px;
+}
+.check-page,
 .play-page,
 .preview-page,
 .result-page,
@@ -532,18 +549,18 @@ div {
   height: 100vh;
 }
 
-.start-page .title {
+.start-page .title,.check-page .title {
   line-height: 4em;
   font-size: 24px;
 }
 
-.start-page h1 {
+.start-page h1,.check-page h1 {
   margin-bottom: 10px;
 }
 
 .start-page .album-list {
   width: 100%;
-  display: flex;
+  /* display: flex; */
   flex-wrap: wrap;
 }
 
@@ -558,10 +575,12 @@ div {
   border: 4px solid #f00;
 }
 
+.van-grid-item.active {
+  border: 2px solid #f00;
+}
 .start-page .album-list .img-wrap img {
   width: 100%;
 }
-
 .start-page .album-list .img-wrap .file-wrap {
   position: relative;
   height: 100%;
@@ -681,6 +700,5 @@ div {
   background: url("../assets/images/share.png") no-repeat rgba(0, 0, 0, 0.8);
   background-position: top right;
   z-index: 11;
-  /* background-size:75%; */
 }
 </style>
