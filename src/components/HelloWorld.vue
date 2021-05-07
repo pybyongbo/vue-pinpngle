@@ -535,7 +535,6 @@ div {
     right:-15%;
 }
 .van-icon.van-icon-success{
-    /* right:-5%; */
     transform: translateX(-207vw);
 }
 .hiddennone{opacity: 0;}
