@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <HelloWorld msg="请选择一张图片"/>
+    <HelloWorld msg="请选择关卡和图片"/>
   </div>
 </template>
 

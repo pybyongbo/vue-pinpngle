@@ -1,28 +1,30 @@
 <template>
-  <!-- :style="{transform: `translateX(${clickStartBtn?-100:0}vw)`}" -->
   <div class="wrap" ref="wrap">
     <div class="check-page">
       <h1>无需注册,验证即玩</h1>
       <van-cell-group>
         <van-field v-model="username" label="用户姓名" placeholder="请输入您的姓名" name="username" autocomplete="off" clearable label-align="right" label-width="78" />
-        <van-field v-model="id" type="number" label="用户ID号" placeholder="请输入ID号"  name="id" clearable autocomplete="off" label-align="right" label-width="78" />
+        <van-field v-model="id" type="number" label="用户ID号" placeholder="请输入ID号" name="id" clearable autocomplete="off" label-align="right" label-width="78" />
       </van-cell-group>
       <van-button type="primary" color="#06c" block @click="checkLogin()">验证登录</van-button>
     </div>
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="gradestep">
-        <span style="margin-right:20px" @click="handleClickPopshow">挑战等级<van-icon name="wap-nav" /></span>
-        <span>游戏说明<van-icon name="question" /></span>
-        <!-- <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
+        <span style="margin-right:20px" @click="handleClickPopshow">切换等级
+          <van-icon name="wap-nav" /></span>
+        <span @click="handleClickDiashow">游戏说明
+          <van-icon name="question" /></span>
+        <!-- 
+        <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
           <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
-        </select> -->
+        </select> 
+        -->
       </div>
 
-     
       <div class="album-list">
         <van-grid :column-num="3">
-          <van-grid-item  v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''"  @click="getItem(index)">
+          <van-grid-item v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''" @click="getItem(index)">
             <template slot="icon">
               <img class="new-icon" :src='item.url' style="width:100%;max-height:125px;" />
             </template>
@@ -30,18 +32,27 @@
         </van-grid>
         <div class="btn" id="start" @click="startGame(activeClass)">开始游戏</div>
       </div>
-
-       <van-action-sheet v-model="popupShow" :round="false" title="选择挑战等级">
+      <!-- 切换等级选择弹框 -->
+      <van-action-sheet v-model="popupShow" round title="请选择挑战等级">
         <div>
           <van-list>
             <van-cell @click="chooseArea(item)" v-for="(item, index) in gradeList" :key="index" :title="`${item.name}-(${item.id}*${item.id})`">
-                <template #right-icon>
-                <van-icon name="success" color="#E4B180" :class="item.id == gradeSelected ? '':'hiddennone'"/>
+              <template #right-icon>
+                <van-icon name="success" color="#E4B180" :class="item.id == gradeSelected ? '':'hiddennone'" />
               </template>
             </van-cell>
           </van-list>
         </div>
       </van-action-sheet>
+      <!-- 游戏说明弹框 -->
+      <van-dialog class="gameInfo" v-model="infoDialog" confirmButtonColor="#1C3999" width="320" :style="{position:'absolute',left:`${leftPos}px`}">
+        <div class="gameText">
+          <h3>游戏说明:</h3>
+          <p>请先选择一张要拼图的图片</p>
+          <p>默认为简单等级,即图片切割为3*3的方块.</p>
+          <p>点击小方块图片,然后点击要交换的图片,即可挪动图片位置进行拼接</p>
+        </div>
+      </van-dialog>
     </div>
 
     <div class="play-page">
@@ -49,17 +60,22 @@
       <div class="play-area" id="playArea">
         <div v-for="item in boxArr" :index="item" :key="item" :class="['piece','piece-'+(item),item==boxArractivelass?'active':'' ]" :style="{backgroundImage:'url('+selectedImg+')'}" @click="changePositon($event,item)" :ref="'piece' +item"></div>
       </div>
+      <van-overlay :show="overlayShow" @click="overlayShow = false">
+        <div class="wrapper">
+          <img class="block" :src="selectedImg" />
+          <van-icon name="close" />
+        </div>
+      </van-overlay>
       <div class="btn" id="change" @click="reOrder()">重新排序</div>
+      <div class="btn" id="lookpic" @click="lookpic()">查看原图</div>
       <div class="btn" id="back" @click="goBack()">返回</div>
     </div>
 
     <div class="result-page">
-
       <div class="success-text">恭喜闯关成功~!</div>
       <div class="total-time">用时: <span id="use_time">{{180-dealtime}}</span>s</div>
       <div class="btn" @click="generateImg">生成战绩海报</div>
       <div class="btn" @click="onceAgain()">再来一次</div>
-
     </div>
 
     <div class="preview-page last-page">
@@ -73,9 +89,10 @@
 </template>
 
 <script>
-import { Toast } from 'vant';
+import { Toast } from "vant";
 import localStorage from "../util/storage";
 import { setSkinStyle } from "../util/setStyle";
+import { checkuserLogin } from "../services/request";
 export default {
   name: "HelloWorld",
   props: {
@@ -83,9 +100,12 @@ export default {
   },
   data() {
     return {
-      username:'',
-      id:'',
-      popupShow:false,
+      username: "",
+      id: "",
+      infoDialog: false,
+      popupShow: false,
+      overlayShow: false,
+      leftPos: document.body.clientWidth / 2,
       startDx: 0, // 初始位移，用于返回上一页
       activeClass: -1,
       boxArractivelass: -1,
@@ -125,14 +145,6 @@ export default {
         { url: require("../assets/images/timg4.jpeg") },
         { url: require("../assets/images/timg6.jpeg") },
         { url: require("../assets/images/2020-10-22-pic2.jpeg") }
-        // { url: require("../assets/images/2020-10-22-pic2.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic47.jpeg")},
-        // { url: require("../assets/images/2020-10-22-pic3.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic5.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic4.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic1.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic7.jpeg") },
-        // { url: require("../assets/images/2020-10-22-pic8.jpeg") }
       ],
 
       wall: 0,
@@ -145,6 +157,7 @@ export default {
     };
   },
   created() {
+    this.leftPos = document.body.clientWidth / 2;
     this.gradeSelected = this.gradeList[0].id;
     this.pool = this.generateMatrix(
       +this.gradeSelected,
@@ -157,6 +170,12 @@ export default {
   },
   mounted() {
     localStorage.setSkin("three");
+    // 如果已经登录过,则记录缓存.
+    let cuser = localStorage.getCurrentUser();
+    if (cuser) {
+      this.startDx = this.startDx - 100;
+      this.transformX(this.$refs.wrap, this.startDx + "vw");
+    }
   },
   computed: {
     gradestepDesc() {
@@ -172,17 +191,14 @@ export default {
     }
   },
   methods: {
-    handleClickPopshow(){
-        this.popupShow = true
+    handleClickPopshow() {
+      this.popupShow = true;
     },
-    chooseArea (item) {
-        console.log(item)
-      this.gradeSelected = item.id
-    //   this.areaName = item.name
-    //   this.show = false
+    handleClickDiashow() {
+      this.infoDialog = true;
     },
-    getGradeSelected() {
-      console.log(this.gradeSelected);
+    chooseArea(item) {
+      this.gradeSelected = item.id;
       this.boxNum = this.gradeSelected;
       this.squalbox = +this.gradeSelected * +this.gradeSelected;
       this.pool = this.generateMatrix(
@@ -193,48 +209,59 @@ export default {
       this.boxArr = new Array(this.squalbox).fill(1).map((item, index) => {
         return index;
       });
-      console.log(+this.gradeSelected * +this.gradeSelected);
       if (this.gradeSelected === 3) {
         localStorage.setSkin("three");
-        console.log(333);
       } else if (this.gradeSelected === 4) {
         localStorage.setSkin("four");
-        console.log(444);
       } else if (this.gradeSelected === 5) {
         localStorage.setSkin("five");
-        console.log(555);
       }
     },
     getItem(index) {
       this.activeClass = index;
     },
-    onFileChange(e) {
-      var files = e.target.files || e.dataTransfer.files;
-      if (!files.length) return;
-      this.createImage(files[0]);
-    },
-    createImage(file) {
-      //   var image = new Image();
-      var reader = new FileReader();
-      var vm = this;
 
-      reader.onload = e => {
-        vm.uploadimg = e.target.result;
-        this.imgArr.push({
-          url: e.target.result
+    checkLogin() {
+      if (!this.username || !this.id) {
+        Toast({
+          message: "请输入用户信息进行匹配",
+          position: "top"
         });
-      };
-      reader.readAsDataURL(file);
-    },
-    checkLogin(){
-      this.startDx = this.startDx - 100;
-      this.transformX(this.$refs.wrap, this.startDx + "vw");
+        return;
+      }
+      checkuserLogin({
+        userName: this.username,
+        userId: this.id
+      }).then(res => {
+        console.log("result", res);
+        const {
+          code,
+          message,
+          data: { userName, userId }
+        } = res;
+        // console.log('result',userName,userId);
+        if (code == "200") {
+          Toast({
+            message: "验证成功~",
+            position: "top"
+          });
+          this.startDx = this.startDx - 100;
+          this.transformX(this.$refs.wrap, this.startDx + "vw");
+          this.handleClickPopshow();
+          localStorage.setCurrentUser({ userName, userId });
+        } else {
+          Toast({
+            message,
+            position: "top"
+          });
+        }
+      });
     },
     startGame(picIndex) {
       if (this.activeClass == -1) {
         Toast({
-          message: '请先选择图片哦~',
-          position: 'top',
+          message: "请先选择图片哦~",
+          position: "top"
         });
         return;
       }
@@ -249,6 +276,9 @@ export default {
     },
     reOrder() {
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
+    },
+    lookpic() {
+      this.overlayShow = true;
     },
     // 点击高亮并且切换对应位置 (想办法交换对应索引位置的x,y值即可)
     changePositon(e, item) {
@@ -295,14 +325,12 @@ export default {
         // 校验是否成功
         if (this.isTestSuccess(this.pool)) {
           // 清除计时器
-          // alert('success');
           // this.clickStartBtn = true;
           clearInterval(this.timer);
           this.startDx -= 100;
           this.issuccess = true;
 
           this.transformX(this.$refs.wrap, this.startDx + "vw");
- 
         }
       }
     },
@@ -328,6 +356,7 @@ export default {
       this.startDx += 100;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
       this.resetTime();
+      // this.handleClickPopshow();
     },
     onceAgain() {
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
@@ -482,7 +511,6 @@ export default {
     },
     // 置换数组(对应索引的x,y值进行交换)
     swap(arr, indexA, indexB) {
-   
       // ES6的解耦交换方式： [arr[index], arr[n]] = [arr[n], arr[index]];
       [arr[indexA], arr[indexB]] = [arr[indexB], arr[indexA]];
     },
@@ -514,8 +542,8 @@ export default {
 div {
   box-sizing: border-box;
 }
-.van-cell-group{
-  margin-top:20%;
+.van-cell-group {
+  margin-top: 20%;
 }
 .gradestep {
   margin-bottom: 10px;
@@ -523,21 +551,39 @@ div {
 .gradeste span {
   margin-right: 8px;
 }
-.van-icon{
-    top:2px;
-    left:3px;
+.van-icon {
+  top: 2px;
+  left: 3px;
 }
-.van-action-sheet{
-    transform: translateX(-100vw);
+.van-action-sheet {
+  transform: translateX(-100vw);
 }
-.van-action-sheet__header i{
-    top:0;
-    right:-15%;
+.van-action-sheet__header i {
+  top: 0;
+  right: -15%;
 }
-.van-icon.van-icon-success{
-    transform: translateX(-207vw);
+.van-icon.van-icon-success {
+  transform: translateX(-207vw);
 }
-.hiddennone{opacity: 0;}
+.van-icon.van-icon-close {
+  font-size: 30px;
+  color: #fff;
+  z-index: 1111111;
+  top: 206px;
+  left: -116px;
+}
+.hiddennone {
+  opacity: 0;
+}
+
+.gameText {
+  padding: 0 15px;
+}
+.gameText p {
+  font-size: 13px;
+  line-height: 24px;
+  text-align: left;
+}
 #grade {
   padding: 3px 5px;
   width: 120px;
@@ -554,7 +600,7 @@ div {
   background-color: #06c;
   color: #fff;
   cursor: pointer;
-  margin: 5% auto 10px;
+  margin: 3% auto 5px;
 }
 #back {
   margin-top: 10px;
@@ -565,11 +611,11 @@ div {
 .start-page .title {
   text-align: center;
 }
-.check-page{
-  padding:0 20px;
+.check-page {
+  padding: 0 20px;
 }
-.check-page button{
-  margin-top:50px;
+.check-page button {
+  margin-top: 50px;
 }
 .check-page,
 .play-page,
@@ -581,12 +627,14 @@ div {
   height: 100vh;
 }
 
-.start-page .title,.check-page .title {
+.start-page .title,
+.check-page .title {
   line-height: 4em;
   font-size: 24px;
 }
 
-.start-page h1,.check-page h1 {
+.start-page h1,
+.check-page h1 {
   margin-bottom: 10px;
 }
 
@@ -652,6 +700,19 @@ div {
 .start-page-ft a {
   color: #06c;
 }
+/* 查看原图 */
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.block {
+  width: auto;
+  height: 320px;
+  background-color: #fff;
+}
 
 .play-page {
   background-color: #4e2503;
@@ -667,7 +728,7 @@ div {
   display: flex;
   flex-wrap: wrap;
   margin: 20px auto;
-  outline: #ccc solid 4px;
+  outline: #ccc solid 3px;
 }
 
 .play-page .play-area.active {
