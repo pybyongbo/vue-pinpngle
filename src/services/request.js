@@ -14,6 +14,21 @@ function checkuserLogin({ userName, userId }) {
   })
 }
 
+function findUserIds({  userId }) {
+  return new Promise((resolve, reject) => {
+    axiosGet({
+      url: `/pic/picture/findUserIds?userId=${userId}`,
+      success(data) {
+        resolve(data);
+      },
+      error(err) {
+        reject(err);
+      }
+    });
+  })
+}
+
 export {
-  checkuserLogin
+  checkuserLogin,
+  findUserIds
 }

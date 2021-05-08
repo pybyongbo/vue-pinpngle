@@ -4,7 +4,13 @@
       <h1>无需注册,验证即玩</h1>
       <van-cell-group>
         <van-field v-model="username" label="用户姓名" placeholder="请输入您的姓名" name="username" autocomplete="off" clearable label-align="right" label-width="78" />
-        <van-field v-model="id" type="number" label="用户ID号" placeholder="请输入ID号" name="id" clearable autocomplete="off" label-align="right" label-width="78" />
+        <van-field v-model="id" type="number" @input="autoSearch" label="用户ID号" placeholder="请输入ID号" name="id" clearable autocomplete="off" label-align="right" label-width="78" />
+
+        <!--展示数据-->
+        <div class="listids" v-if="hasIds">
+          <van-cell v-for="item in allIds" :key="item" :title="item" @click="setCurId(item)" />
+        </div>
+
       </van-cell-group>
       <van-button type="primary" color="#06c" block @click="checkLogin()">验证登录</van-button>
     </div>
@@ -92,7 +98,7 @@
 import { Toast } from "vant";
 import localStorage from "../util/storage";
 import { setSkinStyle } from "../util/setStyle";
-import { checkuserLogin } from "../services/request";
+import { checkuserLogin, findUserIds } from "../services/request";
 export default {
   name: "HelloWorld",
   props: {
@@ -102,6 +108,9 @@ export default {
     return {
       username: "",
       id: "",
+      hasIds: false,
+      allIds: [],
+      // allNewArea:[],
       infoDialog: false,
       popupShow: false,
       overlayShow: false,
@@ -197,6 +206,31 @@ export default {
     handleClickDiashow() {
       this.infoDialog = true;
     },
+    autoSearch() {
+      // 模糊搜索加节流（500ms触发一次）
+      var allowPass = true;
+      if (!allowPass) {
+        return;
+      }
+      findUserIds({ userId: this.id }).then(res => {
+        console.log(res);
+        const { data } = res;
+        if (data.length > 0) {
+          this.allIds = data;
+          this.hasIds = true;
+        }
+      });
+      // setTimeout(() => {
+      //   allowPass = false;
+      //   this.allArea = [];
+      //   this.allNewArea.filter(item => {
+      //     if (item.communityName.indexOf(this.value) !== -1) {
+      //       // 此处也可使用js的 search 方法实现indexOf 一样效果
+      //       this.allArea.push(item);
+      //     }
+      //   });
+      // }, 500);
+    },
     chooseArea(item) {
       this.gradeSelected = item.id;
       this.boxNum = this.gradeSelected;
@@ -221,6 +255,11 @@ export default {
       this.activeClass = index;
     },
 
+    setCurId(item) {
+      this.id = item;
+      this.hasIds = false;
+    },
+
     checkLogin() {
       if (!this.username || !this.id) {
         Toast({
@@ -236,10 +275,9 @@ export default {
         console.log("result", res);
         const {
           code,
-          message,
-          data: { userName, userId }
+          message
+          // data: { userName, userId }
         } = res;
-        // console.log('result',userName,userId);
         if (code == "200") {
           Toast({
             message: "验证成功~",
@@ -248,6 +286,7 @@ export default {
           this.startDx = this.startDx - 100;
           this.transformX(this.$refs.wrap, this.startDx + "vw");
           this.handleClickPopshow();
+          const { userName, userId } = res.data;
           localStorage.setCurrentUser({ userName, userId });
         } else {
           Toast({
@@ -271,7 +310,6 @@ export default {
       this.selectedImg = this.imgArr[picIndex].url;
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
       let skin = localStorage.getSkin();
-      // console.log("skin", skin);
       setSkinStyle(skin);
     },
     reOrder() {
@@ -415,8 +453,6 @@ export default {
             `挑战等级:${that.gradestepDesc}`,
             winW / 2,
             0.05 * winH + imgH
-            // 80+imgH
-            // 100
           );
           // drawText();
           // ctx.save();
@@ -432,13 +468,8 @@ export default {
               "快来挑战！",
             winW / 2,
             0.1 * winH + imgH
-            // 80+imgH
-            // 100
           );
-          // ctx.restore();
-          // drawTip();
 
-          // ctx.save();
           ctx.fillStyle = "#000";
           ctx.font = 14 + "px Helvetica";
           ctx.textBaseline = "hanging";
