@@ -17,22 +17,18 @@
     <div class="start-page">
       <h1>{{ msg }}</h1>
       <div class="gradestep">
-        <span style="margin-right:20px" @click="handleClickPopshow">切换等级
+        <span style="margin-right:20px" @click="handleClickPopshow">切换难易度
           <van-icon name="wap-nav" /></span>
-        <span @click="handleClickDiashow">游戏说明
+        <span @click="handleClickDiashow">帮助
           <van-icon name="question" /></span>
-        <!-- 
-        <select name="grade" id="grade" v-model="gradeSelected" @change="getGradeSelected">
-          <option :value="coupon.id" :key="coupon.id" v-for="coupon in gradeList">{{coupon.name}}</option>
-        </select> 
-        -->
+
       </div>
 
       <div class="album-list">
         <van-grid :column-num="3">
           <van-grid-item v-for="(item,index) in imgArr" :key="index" icon="photo-o" :class="activeClass == index ? 'active':''" @click="getItem(index)">
             <template slot="icon">
-              <img class="new-icon" :src='item.url' style="width:100%;max-height:125px;" />
+              <img class="new-icon" :src='item.picUrl' style="width:100%;max-height:125px;" />
             </template>
           </van-grid-item>
         </van-grid>
@@ -98,7 +94,7 @@
 import { Toast } from "vant";
 import localStorage from "../util/storage";
 import { setSkinStyle } from "../util/setStyle";
-import { checkuserLogin, findUserIds } from "../services/request";
+import { checkuserLogin, findUserIds,getDetailInfo } from "../services/request";
 export default {
   name: "HelloWorld",
   props: {
@@ -145,15 +141,15 @@ export default {
       pieces: document.querySelectorAll(".piece"),
       pool: [],
       imgArr: [
-        { url: require("../assets/images/timg2.jpeg") },
-        { url: require("../assets/images/timg3.jpeg") },
-        { url: require("../assets/images/timg.jpeg") },
-        { url: require("../assets/images/caixushen.jpg") },
-        { url: require("../assets/images/yang.jpeg") },
-        { url: require("../assets/images/re.jpeg") },
-        { url: require("../assets/images/timg4.jpeg") },
-        { url: require("../assets/images/timg6.jpeg") },
-        { url: require("../assets/images/2020-10-22-pic2.jpeg") }
+        // { url: require("../assets/images/timg2.jpeg") },
+        // { url: require("../assets/images/timg3.jpeg") },
+        // { url: require("../assets/images/timg.jpeg") },
+        // { url: require("../assets/images/caixushen.jpg") },
+        // { url: require("../assets/images/yang.jpeg") },
+        // { url: require("../assets/images/re.jpeg") },
+        // { url: require("../assets/images/timg4.jpeg") },
+        // { url: require("../assets/images/timg6.jpeg") },
+        // { url: require("../assets/images/2020-10-22-pic2.jpeg") }
       ],
 
       wall: 0,
@@ -166,6 +162,15 @@ export default {
     };
   },
   created() {
+      let cuser = localStorage.getCurrentUser();
+      console.log('cuser',JSON.parse(cuser))
+      getDetailInfo({
+            uid:JSON.parse(cuser).userId,
+            levels:1
+        }).then(res=>{
+            const {data} = res;
+            this.imgArr = data;
+        });
     this.leftPos = document.body.clientWidth / 2;
     this.gradeSelected = this.gradeList[0].id;
     this.pool = this.generateMatrix(
@@ -220,16 +225,7 @@ export default {
           this.hasIds = true;
         }
       });
-      // setTimeout(() => {
-      //   allowPass = false;
-      //   this.allArea = [];
-      //   this.allNewArea.filter(item => {
-      //     if (item.communityName.indexOf(this.value) !== -1) {
-      //       // 此处也可使用js的 search 方法实现indexOf 一样效果
-      //       this.allArea.push(item);
-      //     }
-      //   });
-      // }, 500);
+ 
     },
     chooseArea(item) {
       this.gradeSelected = item.id;
@@ -285,6 +281,15 @@ export default {
           });
           this.startDx = this.startDx - 100;
           this.transformX(this.$refs.wrap, this.startDx + "vw");
+
+          getDetailInfo({
+              uid:this.id,
+              levels:this.gradeSelected
+          }).then(res=>{
+              console.log('res',res);
+              const {data} = res;
+              this.imgArr = data;
+          })
           this.handleClickPopshow();
           const { userName, userId } = res.data;
           localStorage.setCurrentUser({ userName, userId });
@@ -307,7 +312,7 @@ export default {
       this.timer = setInterval(this.timeStart, 1000);
       this.startDx = this.startDx - 100;
       this.transformX(this.$refs.wrap, this.startDx + "vw");
-      this.selectedImg = this.imgArr[picIndex].url;
+      this.selectedImg = this.imgArr[picIndex].picUrl;
       this.shuffle(document.querySelectorAll(".piece"), this.pool);
       let skin = localStorage.getSkin();
       setSkinStyle(skin);
@@ -555,6 +560,7 @@ export default {
     // 将canvas转化为图片
     convertCanvasToImage(canvas, quality) {
       var image = new Image();
+      image.setAttribute("crossOrigin", "Anonymous");
       image.src = canvas.toDataURL("image/png", quality);
       return image;
     }
